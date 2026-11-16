@@ -76,47 +76,53 @@ Each SQS message for POST, PUT, or DELETE will include a request ID, HTTP method
 
 The diagram follows the original Week 1 layout: the main request flow moves from left to right, with operational services shown below. The four CRUD functions are grouped to keep the design readable.
 
+
 ```mermaid
 flowchart LR
-    C[Customer / Order Client] --> A[API Gateway<br/>HTTP API]
-    A -->|POST / PUT / DELETE: Direct AWS service integration| Q[Amazon SQS<br/>Standard Queue]
-    A -->|GET: Direct Lambda integration| R
-    Q --> D[Dispatcher Lambda]
+    C["Customer / Order Client"]
+    A["API Gateway - HTTP API"]
+    Q["Amazon SQS - Standard Queue"]
+    D["Dispatcher Lambda"]
+    DB[("Amazon DynamoDB - Orders Table")]
+    DLQ["Dead-Letter Queue - DLQ"]
+    CW["Amazon CloudWatch - Logs and Metrics"]
+    IAM["AWS IAM - Roles and Policies"]
 
-    subgraph CRUD[Four CRUD Lambda Functions]
-      direction TB
-      W[Write Lambda<br/>POST]
-      R[Read Lambda<br/>GET]
-      U[Update Lambda<br/>PUT]
-      X[Delete Lambda<br/>DELETE]
+    subgraph CRUD["Four CRUD Lambda Functions"]
+        direction TB
+        W["Write Lambda - POST"]
+        R["Read Lambda - GET"]
+        U["Update Lambda - PUT"]
+        X["Delete Lambda - DELETE"]
     end
 
-    D -->|POST| W
-    D -->|PUT| U
-    D -->|DELETE| X
+    C --> A
+    A -->|"POST, PUT, DELETE"| Q
+    A -->|"GET"| R
+    Q --> D
 
-    W --> DB[(Amazon DynamoDB<br/>Orders Table)]
+    D -->|"POST"| W
+    D -->|"PUT"| U
+    D -->|"DELETE"| X
+
+    W --> DB
     R --> DB
     U --> DB
     X --> DB
 
-    Q -.->|After repeated processing failures| DLQ[Dead-Letter Queue<br/>DLQ]
-    D -.-> CW[Amazon CloudWatch<br/>Logs & Metrics]
+    Q -.->|"Repeated failures"| DLQ
+
+    D -.-> CW
     W -.-> CW
     R -.-> CW
     U -.-> CW
     X -.-> CW
     DB -.-> CW
-    IAM[AWS IAM<br/>Roles & Policies] -.-> D
-    IAM -.-> CRUD
 
-    classDef main fill:#eaf1fa,stroke:#66788a,color:#172b4d;
-    classDef queue fill:#e6f3e7,stroke:#69916d,color:#173d22;
-    classDef support fill:#f7f0df,stroke:#9c8b66,color:#3e3421;
-    class C,A,D,W,R,U,X,DB main;
-    class Q,DLQ queue;
-    class CW,IAM support;
+    IAM -.-> D
+    IAM -.-> CRUD
 ```
+
 
 **Important:** The diagram does **not** contain a Lambda between API Gateway and SQS. API Gateway sends POST, PUT, and DELETE directly to SQS, but GET directly to Read Lambda. Only the Dispatcher Lambda reads messages from the main queue; attaching multiple CRUD Lambdas as competing consumers would not guarantee correct routing.
 
