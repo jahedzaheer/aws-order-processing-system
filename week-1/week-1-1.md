@@ -1,4 +1,3 @@
-````
 # AWS Order Request Queue & Processing System
 ## Week 1 — Requirements Analysis and Initial Architecture
 
@@ -209,4 +208,3 @@ Lambda functions do not need to be placed in a VPC for basic access to SQS or Dy
 - An implementation plan for Weeks 2–4.
 
 The proposed architecture connects **API Gateway directly to SQS for POST, PUT, and DELETE**, without a Submission Lambda, while **GET connects directly from API Gateway to Read Lambda**. The Dispatcher Lambda routes queued messages to Write, Update, and Delete Lambdas. The design is ready for instructor review before infrastructure deployment.
-````
