@@ -77,50 +77,11 @@ Each SQS message for POST, PUT, or DELETE will include a request ID, HTTP method
 The diagram follows the original Week 1 layout: the main request flow moves from left to right, with operational services shown below. The four CRUD functions are grouped to keep the design readable.
 
 
+
 ```mermaid
 flowchart LR
-    C["Customer / Order Client"]
-    A["API Gateway - HTTP API"]
-    Q["Amazon SQS - Standard Queue"]
-    D["Dispatcher Lambda"]
-    DB[("Amazon DynamoDB - Orders Table")]
-    DLQ["Dead-Letter Queue - DLQ"]
-    CW["Amazon CloudWatch - Logs and Metrics"]
-    IAM["AWS IAM - Roles and Policies"]
-
-    subgraph CRUD["Four CRUD Lambda Functions"]
-        direction TB
-        W["Write Lambda - POST"]
-        R["Read Lambda - GET"]
-        U["Update Lambda - PUT"]
-        X["Delete Lambda - DELETE"]
-    end
-
-    C --> A
-    A -->|"POST, PUT, DELETE"| Q
-    A -->|"GET"| R
-    Q --> D
-
-    D -->|"POST"| W
-    D -->|"PUT"| U
-    D -->|"DELETE"| X
-
-    W --> DB
-    R --> DB
-    U --> DB
-    X --> DB
-
-    Q -.->|"Repeated failures"| DLQ
-
-    D -.-> CW
-    W -.-> CW
-    R -.-> CW
-    U -.-> CW
-    X -.-> CW
-    DB -.-> CW
-
-    IAM -.-> D
-    IAM -.-> CRUD
+    A["Customer"] --> B["API Gateway"]
+    B --> C["Amazon SQS"]
 ```
 
 
