@@ -117,7 +117,7 @@ flowchart LR
     class Q,DLQ queue;
     class CW,IAM support;
 ```
-
+![Week 1 Architecture Diagram](<mermaid-diagram (1).png>)
 **Important:** The diagram does **not** contain a Lambda between API Gateway and SQS. API Gateway sends POST, PUT, and DELETE directly to SQS, but GET directly to Read Lambda. Only the Dispatcher Lambda reads messages from the main queue; attaching multiple CRUD Lambdas as competing consumers would not guarantee correct routing.
 
 ## 8. Initial Message Flow
