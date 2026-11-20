@@ -1,0 +1,21 @@
+
+# Terraform local files
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+crash.log
+crash.*.log
+
+# Generated Lambda ZIP files
+*.zip
+
+# AWS credentials and environment files
+.env
+.env.*
+*.pem
+
+# Python temporary files
+__pycache__/
+*.pyc
